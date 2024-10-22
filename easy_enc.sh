@@ -63,17 +63,17 @@ encriptar() {
         # Se um arquivo foi especificado, usa o arquivo como entrada
         if [[ -n "$SAIDA" ]]; then
             if openssl enc $flags -in "$arquivo" -out "$SAIDA"; then
-                echo "Arquivo ${arquivo} criptografado com sucesso em ${SAIDA}!"
+                echo "Arquivo ${arquivo} criptografado com sucesso em ${SAIDA}!" 1>&2
             else
-                echo "[ERRO]: Falha na encriptação do arquivo ${arquivo}."
+                echo "[ERRO]: Falha na encriptação do arquivo ${arquivo}." 1>&2
                 exit 1
             fi
         else
             # Se SAIDA não foi especificado, escreve para a saída padrão (stdout)
             if openssl enc $flags -in "$arquivo"; then
-                echo "Arquivo ${arquivo} criptografado com sucesso na saída padrão!"
+                echo "Arquivo ${arquivo} criptografado com sucesso na saída padrão!" 1>&2
             else
-                echo "[ERRO]: Falha na encriptação do arquivo ${arquivo}."
+                echo "[ERRO]: Falha na encriptação do arquivo ${arquivo}." 1>&2
                 exit 1
             fi
         fi
@@ -81,17 +81,17 @@ encriptar() {
         # Se não foi especificado um arquivo, lê da entrada padrão
         if [[ -n "$SAIDA" ]]; then
             if openssl enc $flags -out "$SAIDA"; then
-                echo "Dados criptografados com sucesso em ${SAIDA}!"
+                echo "Dados criptografados com sucesso em ${SAIDA}!" 1>&2
             else
-                echo "[ERRO]: Falha na encriptação dos dados da entrada padrão."
+                echo "[ERRO]: Falha na encriptação dos dados da entrada padrão." 1>&2
                 exit 1
             fi
         else
             # Se SAIDA não foi especificado, escreve para a saída padrão (stdout)
             if openssl enc $flags; then
-                echo "Dados criptografados com sucesso na saída padrão!"
+                echo "Dados criptografados com sucesso na saída padrão!" 1>&2
             else
-                echo "[ERRO]: Falha na encriptação dos dados da entrada padrão."
+                echo "[ERRO]: Falha na encriptação dos dados da entrada padrão." 1>&2
                 exit 1
             fi
         fi
@@ -109,6 +109,6 @@ elif [[ -z "$FILE" ]]; then
     # Se não foi fornecido um arquivo, usa a entrada padrão
     encriptar "" "$PASSW"
 else
-    echo "[ERRO]: O arquivo ${FILE} não existe!"
+    echo "[ERRO]: O arquivo ${FILE} não existe!" 1>&2
     exit 1
 fi

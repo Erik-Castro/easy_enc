@@ -37,7 +37,7 @@ while [[ "$#" -gt 0 ]]; do
         shift
         ;;
     -p)
-        PASSW="$2"
+        PASSW=$(echo "$2" | sed 's/["\\]/\\&/g')
         shift
         ;;
     -d)
@@ -56,40 +56,57 @@ encriptar() {
     local senha="$2"
     local flags="-a -salt -iter 2048 -pbkdf2 -pass pass:${senha} -aes-256-cbc"
 
-    # Verifica qual é o método da operação
+    # Verifica qual é o método da operação (encriptação ou desencriptação)
     [[ "$METO" == "encrypt" ]] && flags="-e ${flags}" || flags="-d ${flags}"
 
     if [[ -n "$arquivo" ]]; then
         # Se um arquivo foi especificado, usa o arquivo como entrada
-        if openssl enc $flags -in "$arquivo" -out "$SAIDA"; then
-            echo "Arquivo ${arquivo} criptografado com sucesso!"
+        if [[ -n "$SAIDA" ]]; then
+            if openssl enc $flags -in "$arquivo" -out "$SAIDA"; then
+                echo "Arquivo ${arquivo} criptografado com sucesso em ${SAIDA}!"
+            else
+                echo "[ERRO]: Falha na encriptação do arquivo ${arquivo}."
+                exit 1
+            fi
         else
-            echo "[ERRO]: Falha na encriptação do arquivo ${arquivo}."
-            exit 1
+            # Se SAIDA não foi especificado, escreve para a saída padrão (stdout)
+            if openssl enc $flags -in "$arquivo"; then
+                echo "Arquivo ${arquivo} criptografado com sucesso na saída padrão!"
+            else
+                echo "[ERRO]: Falha na encriptação do arquivo ${arquivo}."
+                exit 1
+            fi
         fi
     else
         # Se não foi especificado um arquivo, lê da entrada padrão
-        if openssl enc $flags -out "$SAIDA"; then
-            echo "Dados criptografados com sucesso!"
+        if [[ -n "$SAIDA" ]]; then
+            if openssl enc $flags -out "$SAIDA"; then
+                echo "Dados criptografados com sucesso em ${SAIDA}!"
+            else
+                echo "[ERRO]: Falha na encriptação dos dados da entrada padrão."
+                exit 1
+            fi
         else
-            echo "[ERRO]: Falha na encriptação dos dados da entrada padrão."
-            exit 1
+            # Se SAIDA não foi especificado, escreve para a saída padrão (stdout)
+            if openssl enc $flags; then
+                echo "Dados criptografados com sucesso na saída padrão!"
+            else
+                echo "[ERRO]: Falha na encriptação dos dados da entrada padrão."
+                exit 1
+            fi
         fi
     fi
 }
 
 # Solicita a senha se não foi fornecida
-[[ -z "$PASSW" ]] && read -s -p "Digite a senha para encriptação: " PASSW
+[[ -z "$PASSW" ]] && read -s -p "Digite a senha para encriptação: " PASSW </dev/tty
 echo
 
 # Verifica se o arquivo foi fornecido ou se a entrada padrão está sendo usada
 if [[ -n "$FILE" && -f "$FILE" ]]; then
-    # Se SAIDA não foi especificado, define um padrão
-    [[ -z "$SAIDA" ]] && SAIDA="${FILE}.enc"
     encriptar "$FILE" "$PASSW"
 elif [[ -z "$FILE" ]]; then
     # Se não foi fornecido um arquivo, usa a entrada padrão
-    [[ -z "$SAIDA" ]] && SAIDA="saida.enc"
     encriptar "" "$PASSW"
 else
     echo "[ERRO]: O arquivo ${FILE} não existe!"

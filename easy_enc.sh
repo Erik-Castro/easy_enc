@@ -23,29 +23,41 @@ fi
 # Variáveis de configuração
 SAIDA="" # nome do arquivo gerado
 PASSW="" # Senha para criptografia
+METO="encrypt"
 FILE=""
 
 while [[ "$#" -gt 0 ]]; do
-    case "$1" in 
-        -h) 
-            echo "Uso: $0 [-o arquivo_saida] [-p senha] [arquivo]"
-            exit 0
-            ;;
-        -o) 
-            SAIDA="$2"; shift;;
-        -p) 
-            PASSW="$2"; shift;;
-        *) 
-            FILE="$1";;
+    case "$1" in
+    -h)
+        echo "Uso: $(basename $0) [-o arquivo_saida] [-p senha] [arquivo]"
+        exit 0
+        ;;
+    -o)
+        SAIDA="$2"
+        shift
+        ;;
+    -p)
+        PASSW="$2"
+        shift
+        ;;
+    -d)
+        METO="decrypt"
+        ;;
+    *)
+        FILE="$1"
+        ;;
     esac
     shift
 done
 
 # Função para encriptação
-encriptar(){
+encriptar() {
     local arquivo="$1"
     local senha="$2"
-    local flags="-e -a -salt -iter 2048 -pbkdf2 -pass pass:${senha} -aes-256-cbc"
+    local flags="-a -salt -iter 2048 -pbkdf2 -pass pass:${senha} -aes-256-cbc"
+
+    # Verifica qual é o método da operação
+    [[ "$METO" == "encrypt" ]] && flags="-e ${flags}" || flags="-d ${flags}"
 
     if [[ -n "$arquivo" ]]; then
         # Se um arquivo foi especificado, usa o arquivo como entrada
@@ -67,7 +79,8 @@ encriptar(){
 }
 
 # Solicita a senha se não foi fornecida
-[[ -z "$PASSW" ]] && read -s -p "Digite a senha para encriptação: " PASSW; echo
+[[ -z "$PASSW" ]] && read -s -p "Digite a senha para encriptação: " PASSW
+echo
 
 # Verifica se o arquivo foi fornecido ou se a entrada padrão está sendo usada
 if [[ -n "$FILE" && -f "$FILE" ]]; then
@@ -82,4 +95,3 @@ else
     echo "[ERRO]: O arquivo ${FILE} não existe!"
     exit 1
 fi
-

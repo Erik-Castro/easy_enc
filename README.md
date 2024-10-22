@@ -18,7 +18,7 @@ O `easy_enc.sh` é uma ferramenta simples e eficaz para encriptação e desencri
 
 1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/seu_usuario/easy_enc.git
+   git clone https://github.com/Erik-Castro/easy_enc.git
    cd easy_enc
    ```
 

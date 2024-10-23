@@ -3,7 +3,7 @@
 # Nome do Script: easy_enc.sh
 # Autor: Erik Castro
 # Data de Criação: 21 de Outubro de 2024
-# Data da Última Modificação: 21 de Outubro de 2024
+# Data da Última Modificação: 23 de Outubro de 2024
 # Versão: 0.0.1-alpha
 # Descrição: Ferramenta simples para encriptação de arquivos e dados utilizando OpenSSL.
 # Dependências:
